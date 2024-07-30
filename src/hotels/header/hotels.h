@@ -8,55 +8,19 @@
 #define HOTELS_H
 
 #include "../../utility/header/commonTypes.h"
+#include <iostream>
 
-namespace Coruh
-{
-    namespace Hotels
-    {
-        /**
-            @class Hotels
-            @brief Provides Basic functions for various operations.
-        */
-        class Hotels
-        {
-        public:
-            /**
-             * Adds two numbers.
-             * @param a First operand.
-             * @param b Second operand.
-             * @return The sum of a and b.
-             */
-            static double add(double a, double b);
+using namespace std;
 
-            /**
-             * Subtracts the second number from the first.
-             * @param a Minuend.
-             * @param b Subtrahend.
-             * @return The result of a - b.
-             */
-            static double subtract(double a, double b);
+typedef struct {
+    int id;
+    char name[100];
+    char surname[100];
+    char nickname[100];
+    char password[100];
+} User;
 
-            /**
-             * Multiplies two numbers.
-             * @param a First operand.
-             * @param b Second operand.
-             * @return The product of a and b.
-             */
-            static double multiply(double a, double b);
-
-            /**
-             * Divides the first number by the second.
-             * Throws std::invalid_argument if the second number is zero.
-             * @param a Dividend.
-             * @param b Divisor.
-             * @return The result of a / b.
-             * @throws std::invalid_argument If b is zero.
-             */
-            static double divide(double a, double b);
-
-
-        };
-    }
-}
+int mainMenu(istream& in, ostream& out);
+int RoomManagementMenu(istream& in, ostream& out);
 
 #endif // HOTELS_H
