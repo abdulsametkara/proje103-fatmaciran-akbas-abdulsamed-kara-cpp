@@ -277,19 +277,19 @@ int usersOperations(istream& in, ostream& out) {
             break;
 
         case 2:
-            //deadlineSettingsMenu(in, out);
+            //CustomerReservationMenu(in, out);
             break;
 
         case 3:
-            //reminderSystemMenu(in, out);
+            //financialsMenu(in, out);
             break;
 
         case 4:
-            //taskPrioritizationMenu(in, out);
+            //additionalMenu(in, out);
             break;
 
         case 5:
-            //flowAlgorithmsMenu(in, out);
+            //integrationsMenu(in, out);
             break;
 
         case 6:
