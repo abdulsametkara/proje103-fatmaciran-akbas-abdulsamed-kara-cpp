@@ -277,19 +277,19 @@ int usersOperations(istream& in, ostream& out) {
             break;
 
         case 2:
-            //CustomerReservationMenu(in, out);
+            customerManagentMenu(in, out);
             break;
 
         case 3:
-            //financialsMenu(in, out);
+            financialsMenu(in, out);
             break;
 
         case 4:
-            //additionalMenu(in, out);
+            additionalServicesMenu(in, out);
             break;
 
         case 5:
-            //integrationsMenu(in, out);
+            integrationsMenu(in, out);
             break;
 
         case 6:
@@ -435,6 +435,122 @@ int RoomManagementMenu(istream& in, ostream& out) {
             break;
 
         case 6:
+            return 0;
+        default:
+            out << "\nInvalid choice. Please try again.\n";
+            enterToContinue(in, out);
+            break;
+        }
+    }
+}
+
+int customerManagentMenu(istream& in, ostream& out) {
+    int choice;
+
+    while (true) {
+        printCustomerReservationMenu(out);
+        choice = getInput(in);
+
+        if (in.fail()) { handleInputError(in, out); continue; }
+
+        switch (choice) {
+        case 1:
+            //Booking
+            break;
+        case 2:
+            //Check-in Process
+            break;
+        case 3:
+            //Check-out Process
+            break;
+        case 4:
+            //Guest Feedback
+            break;
+        case 5:
+            return 0;
+        default:
+            out << "\nInvalid choice. Please try again.\n";
+            enterToContinue(in, out);
+            break;
+        }
+    }
+}
+
+int financialsMenu(istream& in, ostream& out) {
+    int choice;
+
+    while (true) {
+        printFinancialsMenu(out);
+        choice = getInput(in);
+
+        if (in.fail()) { handleInputError(in, out); continue; }
+
+        switch (choice) {
+        case 1:
+            //Invoive Generation
+            break;
+        case 2:
+            //Payment Tracking
+            break;
+        case 3:
+            //Promotional Offers
+            break;
+        case 4:
+            return 0;
+        default:
+            out << "\nInvalid choice. Please try again.\n";
+            enterToContinue(in, out);
+            break;
+        }
+    }
+}
+
+int additionalServicesMenu(istream& in, ostream& out) {
+    int choice;
+
+    while (true) {
+        printAdditionalServicesMenu(out);
+        choice = getInput(in);
+
+        if (in.fail()) { handleInputError(in, out); continue; }
+
+        switch (choice) {
+        case 1:
+            //Room Service
+            break;
+        case 2:
+            //Event Booking
+            break;
+        case 3:
+            //Transportation Services
+            break;
+        case 4:
+            return 0;
+        default:
+            out << "\nInvalid choice. Please try again.\n";
+            enterToContinue(in, out);
+            break;
+        }
+    }
+}
+
+int integrationsMenu(istream& in, ostream& out) {
+    int choice;
+
+    while (true) {
+        printIntegrationsMenu(out);
+        choice = getInput(in);
+
+        if (in.fail()) { handleInputError(in, out); continue; }
+
+        switch (choice) {
+        case 1:
+            //Travel Agencies
+            break;
+        case 2:
+            //Customer Review Platforms
+            break;
+        case 3:
             return 0;
         default:
             out << "\nInvalid choice. Please try again.\n";
