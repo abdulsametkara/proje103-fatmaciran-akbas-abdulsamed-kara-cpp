@@ -15,6 +15,9 @@
 using namespace std;
 
 User activeUser;
+Room rooms;
+int roomCount;
+
 
 
 const char* pathFileUsers = "Users.bin";
@@ -170,8 +173,7 @@ bool printRoomManagementMenu(ostream& out) {
     out << "2. Categorize Room\n";
     out << "3. Update Room\n";
     out << "4. Delete Room\n";
-    out << "5. Amenities Listing\n";
-    out << "6. Exit\n";
+    out << "5. Exit\n";
     return true;
 }
 
@@ -419,22 +421,18 @@ int RoomManagementMenu(istream& in, ostream& out) {
 
         switch (choice) {
         case 1:
-            //addRoom
+            addRoomMenu(pathFileRooms, in, out);
             break;
         case 2:
-            //Categorize Room
+            categorizeRoomMenu(pathFileRooms, in, out);
             break;
         case 3:
-            //Update Room
+            updateRoomMenu(pathFileRooms, in, out);
             break;
         case 4:
-            //Delete Room
+            deleteRoomMenu(pathFileRooms, in, out);
             break;
         case 5:
-            //Amenities Listing
-            break;
-
-        case 6:
             return 0;
         default:
             out << "\nInvalid choice. Please try again.\n";
@@ -558,4 +556,186 @@ int integrationsMenu(istream& in, ostream& out) {
             break;
         }
     }
+}
+
+int loadRooms(Room** rooms, const char* pathFileRooms) {
+    FILE* file = fopen(pathFileRooms, "rb");    // Dosyayý ikili modda aç
+    if (!file) {
+        return 0;   // Dosya açýlamazsa 0 dön
+    }
+
+    fseek(file, 0, SEEK_END);                   // Dosyanýn sonuna git
+    int fileSize = ftell(file);                 // Dosya boyutunu al
+    rewind(file);                               // Dosya baþýna geri dön
+
+    int roomCount = fileSize / sizeof(Room);    // Dosyadaki oda sayýsýný hesapla
+    *rooms = (Room*)malloc(roomCount * sizeof(Room));  // Bellekte yer ayýr
+
+    if (fread(*rooms, sizeof(Room), roomCount, file) != roomCount) {
+        fclose(file);                           // Okuma hatasý varsa dosyayý kapat
+        free(*rooms);                           // Ayrýlan belleði serbest býrak
+        *rooms = NULL;                          // Ýþaretçiyi NULL yap
+        return 0;                               // 0 dön
+    }
+
+    fclose(file);                               // Dosyayý kapat
+    return roomCount;                           // Oda sayýsýný dön
+}
+
+int saveRooms(Room* rooms, int roomCount, const char* pathFileRooms, istream& in, ostream& out) {
+    FILE* file = fopen(pathFileRooms, "wb");    // Dosyayý yazma modunda aç
+    if (file) {
+        fwrite(rooms, sizeof(Room), roomCount, file);  // Odalarý dosyaya yaz
+        fclose(file);                           // Dosyayý kapat
+    }
+    return 1;
+}
+
+int addRoomMenu(const char* pathFileRooms, istream& in, ostream& out) {
+    clearScreen();                              // Ekraný temizle
+    Room newRoom;                               // Yeni bir oda oluþtur
+
+    out << "Enter room number: ";               // Oda numarasýný iste
+    in >> newRoom.roomNumber;
+    in.ignore();
+
+    out << "Enter room type (Suit, Single, King Room, Family Room, Deluxe Room): ";                 // Oda tipini iste
+    in.getline(newRoom.roomType, sizeof(newRoom.roomType));
+
+    out << "Enter room price: ";                // Oda fiyatýný iste
+    in >> newRoom.price;
+    in.ignore();
+
+    out << "Enter room capacity: ";             // Oda kapasitesini iste
+    in >> newRoom.capacity;
+    in.ignore();
+
+    out << "Enter room amenities (Wi-Fi, TV, Air Conditioning, Minibar, Terrace): "; // Oda imkanlarýný iste
+    in.getline(newRoom.amenities, sizeof(newRoom.amenities));
+
+    Room* rooms = NULL;                         // Mevcut odalarý yüklemek için iþaretçi
+    int roomCount = loadRooms(&rooms, pathFileRooms);  // Mevcut odalarý yükle
+
+    Room* newRooms = (Room*)malloc((roomCount + 1) * sizeof(Room));  // Yeni oda dahil bellek ayýr
+    if (rooms) {
+        memcpy(newRooms, rooms, roomCount * sizeof(Room));  // Mevcut odalarý kopyala
+        free(rooms);                       // Eski odalarý serbest býrak
+    }
+    newRooms[roomCount] = newRoom;         // Yeni odayý ekle
+    saveRooms(newRooms, roomCount + 1, pathFileRooms, in, out);  // Güncellenmiþ odalarý kaydet
+    free(newRooms);                        // Belleði serbest býrak
+
+    out << "Room added successfully.\n";   // Baþarý mesajý
+    enterToContinue(in, out);              // Devam etmek için bekle
+    return 1;                              // Baþarýyla tamamlandý
+}
+
+int updateRoomMenu(const char* pathFileRooms, istream& in, ostream& out) {
+    clearScreen();                          // Ekraný temizle
+    int roomNumber;
+
+    out << "Enter room number to update: "; // Güncellenecek oda numarasýný iste
+    in >> roomNumber;
+    in.ignore();
+
+    Room* rooms = NULL;                     // Mevcut odalarý yüklemek için iþaretçi
+    int roomCount = loadRooms(&rooms, pathFileRooms);  // Mevcut odalarý yükle
+
+    for (int i = 0; i < roomCount; i++) {
+        if (rooms[i].roomNumber == roomNumber) {  // Oda numarasýný bul
+            out << "Enter new room type: ";  // Yeni oda tipini iste
+            in.getline(rooms[i].roomType, sizeof(rooms[i].roomType));
+
+            out << "Enter new room price: "; // Yeni oda fiyatýný iste
+            in >> rooms[i].price;
+            in.ignore();
+
+            out << "Enter new room capacity: ";  // Yeni oda kapasitesini iste
+            in >> rooms[i].capacity;
+            in.ignore();
+            
+            out << "Enter new room Amenities: ";  // Yeni oda kapasitesini iste
+            in >> rooms[i].amenities;
+            in.ignore();
+
+            saveRooms(rooms, roomCount, pathFileRooms, in, out);  // Güncellenmiþ odalarý kaydet
+            free(rooms);                    // Belleði serbest býrak
+            out << "Room updated successfully.\n";  // Baþarý mesajý
+            enterToContinue(in, out);       // Devam etmek için bekle
+            return 1;                       // Baþarýyla tamamlandý
+        }
+    }
+
+    free(rooms);                            // Oda bulunamazsa belleði serbest býrak
+    out << "Room not found.\n";             // Hata mesajý
+    enterToContinue(in, out);               // Devam etmek için bekle
+    return 0;                               // Baþarýsýz
+}
+
+int deleteRoomMenu(const char* pathFileRooms, istream& in, ostream& out) {
+    clearScreen();                          // Ekraný temizle
+    int roomNumber;
+
+    out << "Enter room number to delete: "; // Silinecek oda numarasýný iste
+    in >> roomNumber;
+    in.ignore();
+
+    Room* rooms = NULL;                     // Mevcut odalarý yüklemek için iþaretçi
+    int roomCount = loadRooms(&rooms, pathFileRooms);  // Mevcut odalarý yükle
+
+    int newRoomCount = 0;                   // Yeni oda sayýsýný tut
+    Room* newRooms = (Room*)malloc(roomCount * sizeof(Room));  // Yeni odalar için bellek ayýr
+
+    for (int i = 0; i < roomCount; i++) {
+        if (rooms[i].roomNumber != roomNumber) {  // Silinecek oda dýþýndaki odalarý kopyala
+            newRooms[newRoomCount++] = rooms[i];
+        }
+    }
+
+    saveRooms(newRooms, newRoomCount, pathFileRooms, in, out);  // Güncellenmiþ odalarý kaydet
+    free(rooms);                        // Eski odalarý serbest býrak
+    free(newRooms);                     // Yeni odalarý serbest býrak
+
+    out << "Room deleted successfully.\n";  // Baþarý mesajý
+    enterToContinue(in, out);               // Devam etmek için bekle
+    return 1;                               // Baþarýyla tamamlandý
+}
+
+int printRoomsByType(const char* pathFileRooms, const char* roomType, istream& in, ostream& out) {
+    Room* rooms = NULL;                         // Mevcut odalarý yüklemek için iþaretçi
+    int roomCount = loadRooms(&rooms, pathFileRooms);  // Mevcut odalarý yükle
+
+    bool found = false;                         // Belirli bir oda tipi bulunup bulunmadýðýný takip eder
+
+    for (int i = 0; i < roomCount; i++) {       // Tüm odalarý dolaþ
+        if (strcmp(rooms[i].roomType, roomType) == 0) { // Oda tipi eþleþirse
+            found = true;                       // Oda tipi bulundu
+            out << "Room Number: " << rooms[i].roomNumber << "\n";
+            out << "Room Type: " << rooms[i].roomType << "\n";
+            out << "Price: " << rooms[i].price << "\n";
+            out << "Capacity: " << rooms[i].capacity << "\n";
+            out << "Amenities: " << rooms[i].amenities << "\n";
+            out << "-------------------------\n";
+        }
+    }
+
+    if (!found) {
+        out << "No rooms found of type: " << roomType << "\n";  // Hiç oda bulunamazsa mesaj ver
+    }
+
+    free(rooms);                               // Belleði serbest býrak
+    return 1;
+}
+
+int categorizeRoomMenu(const char* pathFileRooms, istream& in, ostream& out) {
+    clearScreen();                             // Ekraný temizle
+    char roomType[100];
+
+    out << "Enter room type to list: ";        // Listelenecek oda tipini iste
+    in.getline(roomType, sizeof(roomType));
+
+    printRoomsByType(pathFileRooms, roomType, in, out); // Belirli oda tipine göre odalarý listele
+
+    enterToContinue(in, out);                  // Devam etmek için bekle
+    return 1;                                  // Baþarýyla tamamlandý
 }
